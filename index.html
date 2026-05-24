@@ -3,11 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>比心手势识别 | Heart Gesture</title>
+    <title>照片上传 | Photo Upload</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --color-primary: #FF6B6B;
+            --color-secondary: #4ECDC4;
+            --color-bg: #FAFAFA;
+            --color-text: #2D3436;
+            --color-text-light: #636E72;
+            --color-white: #FFFFFF;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.12);
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 30px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -16,374 +32,672 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
         .container {
-            width: 100%;
-            max-width: 900px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
         }
 
-        .header {
+        /* Hero Section */
+        .hero {
             text-align: center;
-            margin-bottom: 2rem;
-            color: white;
+            padding: 80px 0 60px;
         }
 
-        .header h1 {
-            font-size: 2.5rem;
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
             font-weight: 700;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+            animation: fadeInUp 0.8s ease;
         }
 
-        .header p {
-            font-size: 1rem;
-            opacity: 0.9;
+        .hero p {
+            font-size: 1.125rem;
+            color: var(--color-text-light);
             font-weight: 300;
+            animation: fadeInUp 0.8s ease 0.2s both;
         }
 
-        .video-wrapper {
+        /* Upload Area */
+        .upload-section {
+            margin-bottom: 60px;
+        }
+
+        .upload-area {
+            background: var(--color-white);
+            border: 3px dashed var(--color-secondary);
+            border-radius: var(--radius-lg);
+            padding: 60px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
             position: relative;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.8s ease 0.4s both;
         }
 
-        video, canvas {
-            display: block;
-            width: 100%;
-            border-radius: 20px;
-        }
-
-        canvas {
+        .upload-area::before {
+            content: '';
             position: absolute;
-            top: 0;
-            left: 0;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(78, 205, 196, 0.05), rgba(255, 107, 107, 0.05));
+            opacity: 0;
+            transition: var(--transition);
         }
 
-        .status {
-            text-align: center;
-            padding: 1rem 2rem;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            border-radius: 50px;
-            color: white;
-            font-weight: 600;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+        .upload-area:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
         }
 
-        .status.detected {
-            background: rgba(255, 100, 150, 0.3);
-            border-color: rgba(255, 100, 150, 0.5);
-            animation: pulse 0.5s ease;
+        .upload-area:hover::before {
+            opacity: 1;
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        .upload-area.dragover {
+            border-color: var(--color-primary);
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(78, 205, 196, 0.1));
+            transform: scale(1.02);
         }
 
-        .instructions {
-            margin-top: 2rem;
-            text-align: center;
-            color: white;
-            font-size: 0.9rem;
-            opacity: 0.85;
+        .upload-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            position: relative;
+            z-index: 1;
         }
 
-        .loading {
-            position: fixed;
-            top: 0;
-            left: 0;
+        .upload-icon svg {
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--color-secondary);
+            transition: var(--transition);
+        }
+
+        .upload-area:hover .upload-icon svg {
+            color: var(--color-primary);
+            transform: translateY(-8px);
+        }
+
+        .upload-text {
+            position: relative;
+            z-index: 1;
+        }
+
+        .upload-text h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: var(--color-text);
+        }
+
+        .upload-text p {
+            color: var(--color-text-light);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+
+        .upload-btn {
+            display: inline-block;
+            padding: 14px 40px;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            color: var(--color-white);
+            border: none;
+            border-radius: 50px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .upload-btn:active {
+            transform: translateY(0);
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* Features Section */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+            animation: fadeInUp 0.8s ease 0.6s both;
+        }
+
+        .feature-card {
+            background: var(--color-white);
+            padding: 32px 24px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 16px;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(78, 205, 196, 0.1));
+            border-radius: 50%;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease;
         }
 
-        .loading.hidden {
+        .feature-icon svg {
+            width: 28px;
+            height: 28px;
+            color: var(--color-primary);
+        }
+
+        .feature-card h4 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: var(--color-text);
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            color: var(--color-text-light);
+        }
+
+        /* Gallery Section */
+        .gallery-section {
+            margin-bottom: 80px;
+        }
+
+        .gallery-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            animation: fadeInUp 0.8s ease 0.8s both;
+        }
+
+        .gallery-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--color-text);
+        }
+
+        .clear-btn {
+            padding: 10px 24px;
+            background: transparent;
+            color: var(--color-text-light);
+            border: 2px solid var(--color-text-light);
+            border-radius: 50px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .clear-btn:hover {
+            color: var(--color-primary);
+            border-color: var(--color-primary);
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .photo-card {
+            background: var(--color-white);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            position: relative;
+            animation: scaleIn 0.4s ease;
+        }
+
+        .photo-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .photo-img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .photo-card:hover .photo-img {
+            transform: scale(1.05);
+        }
+
+        .photo-info {
+            padding: 20px;
+        }
+
+        .photo-name {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--color-text);
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .photo-size {
+            font-size: 0.85rem;
+            color: var(--color-text-light);
+        }
+
+        .photo-actions {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            gap: 8px;
             opacity: 0;
-            pointer-events: none;
+            transition: var(--transition);
         }
 
-        .loading-text {
-            color: white;
-            font-size: 1.5rem;
-            margin-top: 1.5rem;
-            font-weight: 600;
+        .photo-card:hover .photo-actions {
+            opacity: 1;
         }
 
-        .spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
+        .action-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            background: var(--color-white);
+            color: var(--color-text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .action-btn:hover {
+            transform: scale(1.1);
         }
 
-        @media (max-width: 600px) {
-            .header h1 {
-                font-size: 1.8rem;
+        .action-btn.download:hover {
+            color: var(--color-secondary);
+        }
+
+        .action-btn.delete:hover {
+            color: var(--color-primary);
+        }
+
+        .action-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 40px;
+            color: var(--color-text-light);
+            animation: fadeInUp 0.8s ease 1s both;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            color: var(--color-text-light);
+            opacity: 0.5;
+            margin-bottom: 20px;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--color-text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
             }
-            
-            .header p {
-                font-size: 0.9rem;
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .hero {
+                padding: 60px 0 40px;
+            }
+
+            .upload-area {
+                padding: 40px 24px;
+            }
+
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+
+            .gallery-header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
             }
         }
     </style>
 </head>
 <body>
-    <div class="loading" id="loading">
-        <div class="spinner"></div>
-        <div class="loading-text">正在加载模型...</div>
-    </div>
-
     <div class="container">
-        <div class="header">
-            <h1>💖 比心手势识别</h1>
-            <p>在摄像头前比心，触发爱心动画！</p>
-        </div>
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>📸 照片上传</h1>
+            <p>轻松上传、预览和管理你的精彩瞬间</p>
+        </section>
 
-        <div class="video-wrapper">
-            <video id="video" autoplay playsinline muted></video>
-            <canvas id="canvas"></canvas>
-        </div>
+        <!-- Upload Section -->
+        <section class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <div class="upload-text">
+                    <h3>拖拽照片到这里</h3>
+                    <p>或者点击选择文件</p>
+                    <p style="font-size: 0.85rem; margin-top: 8px;">支持 JPG, PNG, GIF, WebP</p>
+                    <button class="upload-btn" id="uploadBtn">选择照片</button>
+                </div>
+                <input type="file" id="fileInput" accept="image/*" multiple>
+            </div>
+        </section>
 
-        <div class="status" id="status">等待检测...</div>
+        <!-- Features Section -->
+        <section class="features">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                </div>
+                <h4>拖拽上传</h4>
+                <p>简单便捷的拖拽上传体验</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <h4>本地存储</h4>
+                <p>照片安全保存在浏览器中</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                </div>
+                <h4>一键下载</h4>
+                <p>随时下载你的照片</p>
+            </div>
+        </section>
 
-        <div class="instructions">
-            提示：将双手在摄像头前比出爱心形状 ✌️→❤️
-        </div>
+        <!-- Gallery Section -->
+        <section class="gallery-section" id="gallerySection">
+            <div class="gallery-header">
+                <h2>我的照片</h2>
+                <button class="clear-btn" id="clearBtn" style="display: none;">清空全部</button>
+            </div>
+            <div class="gallery" id="gallery"></div>
+        </section>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <footer>
+        <p>❤️ 用心设计，简单易用</p>
+    </footer>
+
     <script>
-        const videoElement = document.getElementById('video');
-        const canvasElement = document.getElementById('canvas');
-        const canvasCtx = canvasElement.getContext('2d');
-        const statusElement = document.getElementById('status');
-        const loadingElement = document.getElementById('loading');
+        // DOM Elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const gallery = document.getElementById('gallery');
+        const clearBtn = document.getElementById('clearBtn');
+        const gallerySection = document.getElementById('gallerySection');
 
-        let hearts = [];
-        let lastHeartTime = 0;
-        const HEART_COOLDOWN = 500;
+        // Storage
+        const STORAGE_KEY = 'photoUploaderPhotos';
+        let photos = [];
 
-        function drawHeart(ctx, x, y, size, color, alpha) {
-            ctx.save();
-            ctx.globalAlpha = alpha;
-            ctx.fillStyle = color;
-            ctx.beginPath();
-            ctx.moveTo(x, y + size / 4);
-            ctx.bezierCurveTo(x, y, x - size / 2, y, x - size / 2, y + size / 4);
-            ctx.bezierCurveTo(x - size / 2, y + size / 2, x, y + size * 3 / 4, x, y + size);
-            ctx.bezierCurveTo(x, y + size * 3 / 4, x + size / 2, y + size / 2, x + size / 2, y + size / 4);
-            ctx.bezierCurveTo(x + size / 2, y, x, y, x, y + size / 4);
-            ctx.fill();
-            ctx.restore();
+        // Initialize
+        function init() {
+            loadPhotos();
+            renderGallery();
+            setupEventListeners();
         }
 
-        class Heart {
-            constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                this.size = 30;
-                this.maxSize = 80;
-                this.alpha = 1;
-                this.color = `hsl(${Math.random() * 60 + 330}, 100%, 65%)`;
-                this.vx = (Math.random() - 0.5) * 3;
-                this.vy = -Math.random() * 3 - 2;
-                this.growth = 2;
-                this.decay = 0.02;
-                this.life = 1;
-            }
-
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.vy += 0.1;
-                if (this.size < this.maxSize) {
-                    this.size += this.growth;
-                }
-                this.life -= this.decay;
-                this.alpha = this.life;
-            }
-
-            draw(ctx) {
-                drawHeart(ctx, this.x, this.y, this.size, this.color, this.alpha);
-                drawHeart(ctx, this.x + 5, this.y + 5, this.size * 0.7, this.color, this.alpha * 0.5);
-            }
-
-            isAlive() {
-                return this.life > 0;
+        // Load photos from localStorage
+        function loadPhotos() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                photos = JSON.parse(stored);
             }
         }
 
-        function isHeartGesture(landmarks1, landmarks2) {
-            if (!landmarks1 || !landmarks2) return false;
-
-            const thumbTip1 = landmarks1[4];
-            const indexTip1 = landmarks1[8];
-            const thumbTip2 = landmarks2[4];
-            const indexTip2 = landmarks2[8];
-
-            const distThumbs = Math.sqrt(
-                Math.pow(thumbTip1.x - thumbTip2.x, 2) + 
-                Math.pow(thumbTip1.y - thumbTip2.y, 2)
-            );
-            const distIndices = Math.sqrt(
-                Math.pow(indexTip1.x - indexTip2.x, 2) + 
-                Math.pow(indexTip1.y - indexTip2.y, 2)
-            );
-
-            const middleTip1 = landmarks1[12];
-            const middleTip2 = landmarks2[12];
-            const wrist1 = landmarks1[0];
-            const wrist2 = landmarks2[0];
-
-            const handDistance = Math.sqrt(
-                Math.pow(wrist1.x - wrist2.x, 2) + 
-                Math.pow(wrist1.y - wrist2.y, 2)
-            );
-
-            const fingersClose1 = Math.sqrt(
-                Math.pow(indexTip1.x - middleTip1.x, 2) + 
-                Math.pow(indexTip1.y - middleTip1.y, 2)
-            ) < 0.1;
-            const fingersClose2 = Math.sqrt(
-                Math.pow(indexTip2.x - middleTip2.x, 2) + 
-                Math.pow(indexTip2.y - middleTip2.y, 2)
-            ) < 0.1;
-
-            return distThumbs < 0.15 && 
-                   distIndices < 0.15 && 
-                   handDistance < 0.4 && 
-                   handDistance > 0.1 &&
-                   fingersClose1 && 
-                   fingersClose2;
+        // Save photos to localStorage
+        function savePhotos() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(photos));
         }
 
-        function getHeartCenter(landmarks1, landmarks2) {
-            const thumbTip1 = landmarks1[4];
-            const indexTip1 = landmarks1[8];
-            const thumbTip2 = landmarks2[4];
-            const indexTip2 = landmarks2[8];
-
-            return {
-                x: (thumbTip1.x + indexTip1.x + thumbTip2.x + indexTip2.x) / 4,
-                y: (thumbTip1.y + indexTip1.y + thumbTip2.y + indexTip2.y) / 4
-            };
-        }
-
-        function onResults(results) {
-            canvasCtx.save();
-            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-            
-            canvasCtx.drawImage(
-                results.image, 0, 0, canvasElement.width, canvasElement.height
-            );
-
-            let heartDetected = false;
-            let heartCenter = null;
-
-            if (results.multiHandLandmarks && results.multiHandLandmarks.length >= 2) {
-                if (isHeartGesture(results.multiHandLandmarks[0], results.multiHandLandmarks[1])) {
-                    heartDetected = true;
-                    heartCenter = getHeartCenter(results.multiHandLandmarks[0], results.multiHandLandmarks[1]);
-                    
-                    const now = Date.now();
-                    if (now - lastHeartTime > HEART_COOLDOWN) {
-                        hearts.push(new Heart(
-                            heartCenter.x * canvasElement.width,
-                            heartCenter.y * canvasElement.height
-                        ));
-                        lastHeartTime = now;
-                    }
-                }
-            }
-
-            if (results.multiHandLandmarks) {
-                for (const landmarks of results.multiHandLandmarks) {
-                    drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
-                        color: '#00FF00',
-                        lineWidth: 2
-                    });
-                    drawLandmarks(canvasCtx, landmarks, {
-                        color: '#FF0000',
-                        lineWidth: 1,
-                        radius: 3
-                    });
-                }
-            }
-
-            hearts = hearts.filter(heart => heart.isAlive());
-            hearts.forEach(heart => {
-                heart.update();
-                heart.draw(canvasCtx);
+        // Setup event listeners
+        function setupEventListeners() {
+            // Upload button click
+            uploadBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                fileInput.click();
             });
 
-            if (heartDetected) {
-                statusElement.textContent = '❤️ 爱心检测中！';
-                statusElement.classList.add('detected');
-            } else {
-                statusElement.textContent = '等待检测...';
-                statusElement.classList.remove('detected');
-            }
+            // Upload area click
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
 
-            canvasCtx.restore();
+            // File input change
+            fileInput.addEventListener('change', handleFileSelect);
+
+            // Drag and drop
+            uploadArea.addEventListener('dragover', handleDragOver);
+            uploadArea.addEventListener('dragleave', handleDragLeave);
+            uploadArea.addEventListener('drop', handleDrop);
+
+            // Clear button
+            clearBtn.addEventListener('click', clearAllPhotos);
         }
 
-        const hands = new Hands({
-            locateFile: (file) => {
-                return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+        // Handle drag over
+        function handleDragOver(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        // Handle drag leave
+        function handleDragLeave(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        // Handle drop
+        function handleDrop(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            processFiles(files);
+        }
+
+        // Handle file select
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            processFiles(files);
+            fileInput.value = '';
+        }
+
+        // Process files
+        function processFiles(files) {
+            Array.from(files).forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const photo = {
+                            id: Date.now() + Math.random().toString(36).substr(2, 9),
+                            name: file.name,
+                            dataURL: e.target.result,
+                            size: file.size,
+                            type: file.type,
+                            uploadTime: Date.now()
+                        };
+                        photos.unshift(photo);
+                        savePhotos();
+                        renderGallery();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // Format file size
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Render gallery
+        function renderGallery() {
+            if (photos.length === 0) {
+                gallery.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p>还没有上传照片，开始上传第一张吧！</p>
+                    </div>
+                `;
+                clearBtn.style.display = 'none';
+                return;
             }
-        });
 
-        hands.setOptions({
-            maxNumHands: 2,
-            modelComplexity: 1,
-            minDetectionConfidence: 0.7,
-            minTrackingConfidence: 0.5
-        });
+            clearBtn.style.display = 'block';
+            gallery.innerHTML = photos.map(photo => `
+                <div class="photo-card" data-id="${photo.id}">
+                    <div class="photo-actions">
+                        <button class="action-btn download" title="下载" onclick="downloadPhoto('${photo.id}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                        </button>
+                        <button class="action-btn delete" title="删除" onclick="deletePhoto('${photo.id}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </div>
+                    <img src="${photo.dataURL}" alt="${photo.name}" class="photo-img">
+                    <div class="photo-info">
+                        <div class="photo-name">${photo.name}</div>
+                        <div class="photo-size">${formatSize(photo.size)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-        hands.onResults(onResults);
+        // Download photo
+        function downloadPhoto(id) {
+            const photo = photos.find(p => p.id === id);
+            if (photo) {
+                const link = document.createElement('a');
+                link.href = photo.dataURL;
+                link.download = photo.name;
+                link.click();
+            }
+        }
 
-        const camera = new Camera(videoElement, {
-            onFrame: async () => {
-                await hands.send({image: videoElement});
-            },
-            width: 1280,
-            height: 720
-        });
+        // Delete photo
+        function deletePhoto(id) {
+            photos = photos.filter(p => p.id !== id);
+            savePhotos();
+            renderGallery();
+        }
 
-        camera.start().then(() => {
-            canvasElement.width = videoElement.videoWidth;
-            canvasElement.height = videoElement.videoHeight;
-            loadingElement.classList.add('hidden');
-        });
+        // Clear all photos
+        function clearAllPhotos() {
+            if (confirm('确定要删除所有照片吗？')) {
+                photos = [];
+                savePhotos();
+                renderGallery();
+            }
+        }
+
+        // Make functions globally available
+        window.downloadPhoto = downloadPhoto;
+        window.deletePhoto = deletePhoto;
+
+        // Initialize app
+        init();
     </script>
 </body>
 </html>
